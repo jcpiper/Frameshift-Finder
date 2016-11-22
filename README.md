@@ -6,3 +6,6 @@ A Django app to identify frame shift loci in bacteriophage genomes
 
 # Django Version #
 1.10.3
+
+# App Name #
+fsfinder
