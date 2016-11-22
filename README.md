@@ -9,3 +9,5 @@ A Django app to identify frame shift loci in bacteriophage genomes
 
 # App Name #
 fsfinder
+
+Algorithm will go in the views.py file. For info on django's architechture please see this [django tutorial](https://docs.djangoproject.com/en/1.10/intro/tutorial01/)  
