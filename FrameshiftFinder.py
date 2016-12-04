@@ -33,6 +33,21 @@ if (ttg >= 0 and ttg < start):
 if(start == 0 and gtg < 0 and ttg >= 0):
 	start = ttg
 	
+# Loop thru sequence until stop codon encountered
+curr = start
+
+codon = sequence[curr:curr+2]
+rframe = []
+otherFrame = false
+
+while(codon != 'TGA' and codon !='TAA' and codon !='TAG'):
+	rframe.append(codon + ',')
+	curr += 3
+	codon = sequence[curr:curr+2]
+	#check for another start codon
+	if (codon == 'ATG' or codon == 'GTG' or codon == 'TTG')
+		otherFrame = true
+	
 
 
 
