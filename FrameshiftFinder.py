@@ -1,5 +1,7 @@
 ## desktop version of algorithm
 
+import os
+
 ## Read in fasta file
 dna = open('test.txt', 'r')
 
@@ -51,15 +53,23 @@ while(len(sequence) > 3):
 
 	while(codon != 'TGA' and codon !='TAA' and codon !='TAG'):
 		print(codon)
-		rframe.append(codon)
 		codon = sequence[curr:curr+3]
+		rframe.append(codon)
 		sequence = sequence[curr+3:]
 		#check for another start codon
 		if (codon == 'ATG' or codon == 'GTG' or codon == 'TTG'):
 			otherFrame = True
 		
-
+	# rframe.append(codon)
+	if (otherFrame):
+		orfs.write(','.join(rframe))
+		orfs.write(',')
 	print(rframe)
 	print('remaining sequence: ' + sequence)
-	orfs.close()
+	
+
+#Remove ',' from end of file
+orfs.seek(-1, os.SEEK_END)
+orfs.truncate()
+orfs.close()
 
