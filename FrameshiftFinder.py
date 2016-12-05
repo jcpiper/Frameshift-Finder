@@ -29,8 +29,12 @@ def findSlipSeq(orf, seqs, shift):
 		if result >= 0:
 			if shift:
 				match = [x, result, result + 7, '-1 Frameshift']
+				file = open('results.txt', 'w+')
+				file.append(orf)
+				file.close()
 			else:
 				match = [x, result, result + 7, '+1 Frameshift']
+			
 			return match
 	return 'No match found'
 	
@@ -110,6 +114,8 @@ def processGenome(sequence, reversed):
 			# print('start contents: ' + str(start))
 			# print('Visited? ' + str(visited))
 		else:
+			#sort start[] so we always investigate the next start codon in order
+			start.sort()
 			curr = start.pop(0)
 			## debugging output
 			# print('Start Location: ' + str(curr))
@@ -203,10 +209,10 @@ def processGenome(sequence, reversed):
 				curr += 3
 			
 		## write orfs of interest to csv file
-		if (otherFrame):
-			orfs.write(','.join(rframe))
-			orfs.write(',')
-			print(findSlipSeq(''.join(rframe), seqs, shift))
+		# if (otherFrame):
+		orfs.write(','.join(rframe))
+		orfs.write(',')
+		print(findSlipSeq(''.join(rframe), seqs, shift))
 		
 		# debugging output:
 		# if (len(rframe) > 1):
