@@ -3,6 +3,10 @@
 
 import os
 
+### GLIMMER CALL ####
+## import subprocess
+## subprocess.call("glimmer3 [insert filename here] L5.icm results.txt")
+#####################
 
 ###################################### FUNCTIONS TO FIND SLIPPERY SEQUENCE MATCHES IN ORFS ######################################
 # generate all possible slippery sequences of form XXXYYYZ where Z can be anything (including X or Y) and X and Y must be unique
