@@ -1,3 +1,4 @@
+
 ## desktop version of algorithm
 
 import os
@@ -61,57 +62,86 @@ bp = 0
 ## Loop thru entire genome and find all orfs w/ potential frameshifts
 ## Keep in mind that bacteriophage genomes are circular, therefore eof != end of genome, must "circle back" to beginning of file and proceed to first in frame stop codon
 ## ^ how to do this? 
+
+start = []
+visited = []
+curr = 0
 while(len(sequence) > 3):
-	print('starting iteration')
-	print(len(sequence))
-	print('current location: ' + str(genomeSize - len(sequence)))
+	# print('starting iteration')
+	# print(len(sequence))
+	# print('current location: ' + str(genomeSize - len(sequence)))
 	## find next start codon
-	start = 0
-	atg = sequence.find('ATG')
-	if (atg >= 0):
-		start = atg
-	gtg = sequence.find('GTG')
+	if not start:
+		sequence = sequence[curr:]
+		del visited[:]
+		print('trimmed string!')
+		atg = sequence.find('ATG')
+		if (atg >= 0):
+			start.append(atg)
+			
+		gtg = sequence.find('GTG')
 
-	if (gtg >= 0 and gtg < start):
-		start = gtg
+		# if (gtg >= 0 and gtg < start):
+			# start = gtg
+			
+		if (gtg >= 0):
+			start.append(gtg)
 
+		# make sure start isn't mistakenly left as 0
+		# if (atg < 0 and gtg >= 0):
+			# start = gtg
+
+		ttg = sequence.find('TTG')
+
+		# if (ttg >= 0 and ttg < start):
+			# start = ttg
+
+		if (ttg >= 0):
+			start.append(ttg)
+			
+		start.sort()
+		curr = start.pop(0)
+		# clear list
+		del start[:]
+		# print('Start location: ' + str(curr))
+		# print('start contents: ' + str(start))
+		# print('Visited? ' + str(visited))
+	else:
+		curr = start.pop(0)
+		# print('Start Location: ' + str(curr))
+		# print('start contents: ' + str(start))
+		# print('visited? ' + str(visited))
+	# print('orf start: ' + str(curr))
 	# make sure start isn't mistakenly left as 0
-	if (atg < 0 and gtg >= 0):
-		start = gtg
-
-	ttg = sequence.find('TTG')
-
-	if (ttg >= 0 and ttg < start):
-		start = ttg
-
-	# make sure start isn't mistakenly left as 0
-	if(start == 0 and gtg < 0 and atg < 0 and ttg >= 0):
-		start = ttg
-	elif (gtg < 0 and atg < 0 and ttg < 0):
-		print('breaking out of loop?')
-		print('atg: ' + str(atg))
-		break #break out of loop if there are no more start codons
-	bp += start	
-	print('starting at bp ' + str(bp))
+	# if(start == 0 and gtg < 0 and atg < 0 and ttg >= 0):
+		# start = ttg
+	# elif (gtg < 0 and atg < 0 and ttg < 0):
+		# print('breaking out of loop?')
+		# print('atg: ' + str(atg))
+		# break #break out of loop if there are no more start codons
+	# bp += start	
+	# print('starting at bp ' + str(bp))
+	
 	# Loop thru sequence until stop codon encountered
-	curr = start
-
 	codon = sequence[curr:curr+3]
-	bp += 3
+	# bp += 3
 	
 	rframe = []
 	otherFrame = False
 	
+	otherOrfs = []
+	minusFrameVisited = False
+	plusFrameVisited = False
 	while(codon != 'TGA' and codon !='TAA' and codon !='TAG'):
-		print(codon + ': ' + str(bp))
+		print(codon + ': ' + str(curr))
 		######## HANDLING CIRCULAR NATURE OF GENOME HERE #########
 		#circle back thru genome if end of file is not stop codon
-		if (len(sequence) < 3 and readCount < 2):
+		if (len(sequence) - curr < 3 and readCount < 2):
 			print('going back to start of genome')
-			length = 3 - len(sequence)
+			length = len(sequence) - curr
 			print('taking first ' + str(length) + ' characters from start of file')
-			print('Remaining sequence: ' + sequence)
-			codon = sequence
+			print('Remaining sequence: ' + sequence[curr:])
+			codon = sequence[curr:]
 			# return to beginning of fasta file
 			dna.seek(0)
 			dna.readline()
@@ -138,30 +168,44 @@ while(len(sequence) > 3):
 				shift = False
 			sequence = sequence[length:]
 			rframe.append(codon)
+		######### ######### ######### #########
 		else:
 			#increment bp coordinate counter
-			bp += 3
+			# bp += 3
 			
 			codon = sequence[curr:curr+3]
 			rframe.append(codon)
-			######### ######### ######### #########
+			
 			#check for another start codon in frame
 			# if (codon == 'ATG' or codon == 'GTG' or codon == 'TTG'):
 				# otherFrame = True
 				
 			#check for another start codon in +1 and -1 frames
-			# shift is holds a boolean value --> if True: -1 shift, if False: +1 shift
+			# shift holds a boolean value --> if True: -1 shift, if False: +1 shift
+			# check whether this is the first occurrence of a start in this frame (minusFrameVisited or plusFrameVisited)
 			backFrame = sequence[curr-1:curr+2]
 			if (backFrame == 'ATG' or backFrame == 'GTG' or backFrame == 'TTG'):
 				otherFrame = True
 				shift = True
+				if not minusFrameVisited:
+					minusFrameVisited = True
+					if visited.count(curr-1) is 0:
+						start.append(curr-1)
+						visited.append(curr-1)
+				
 			forwardFrame = sequence[curr+1:curr+4]
 			if (forwardFrame == 'ATG' or forwardFrame == 'GTG' or forwardFrame == 'TTG'):
 				otherFrame = True
 				shift = False
-			#trim string to remove this codon
-			sequence = sequence[curr+3:]
-			
+				if not plusFrameVisited:
+					plusFrameVisited = True
+					if visited.count(curr+1) is 0:
+						start.append(curr+1)
+						visited.append(curr+1)
+			#trim string to remove this codon --> don't trim string yet
+			# sequence = sequence[curr+3:]
+			# move forward in frame
+			curr += 3
 		
 	# rframe.append(codon)
 	if (otherFrame):
@@ -183,4 +227,3 @@ while(len(sequence) > 3):
 orfs.seek(-1, os.SEEK_END)
 orfs.truncate()
 orfs.close()
-
