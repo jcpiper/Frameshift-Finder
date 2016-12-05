@@ -1,4 +1,7 @@
 from django.shortcuts import render
+from django.http import HttpResponseRedirect
+from django.shortcuts import render
+from .forms import UploadFileForm
 
 # Create your views here.
 
@@ -7,6 +10,23 @@ from django.shortcuts import render
 def index(request):
 	# render home page
 	return render(request, 'fsfinder/index.html')
+	
+def upload(request):
+	# handles file uploads
+	if request.method == 'post':
+		form = UploadFileForm(request.POST, request.FILES}
+		if form.is_valid():
+			process_file(request.FILES['file'])
+			return HttpResponseRedirect('fsfinder/results.html')
+		else:
+			form = UploadFileForm()
+		return render(request, 'fsfinder/index.html', {'form':form})
+		
+def process_file(file):
+	# writes upload to temporary file
+	with open('fsfinder/.fasta', 'w+') as destination:
+		for chunk in file.chunks():
+			destination.write(chunk)
 
 def file_check(request):
 	# check input file for FASTA format
