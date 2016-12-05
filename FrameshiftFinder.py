@@ -51,6 +51,7 @@ sequence = dna.read()
 sequence.strip()
 # genomeSize = len(sequence)
 
+############# MAIN FUNCTION ##############################
 def processGenome(sequence, reversed):
 
 	readCount = 1 #counter for # of times file is read (should max out at 2)
@@ -201,7 +202,7 @@ def processGenome(sequence, reversed):
 				# move forward in frame
 				curr += 3
 			
-		# rframe.append(codon)
+		## write orfs of interest to csv file
 		if (otherFrame):
 			orfs.write(','.join(rframe))
 			orfs.write(',')
@@ -218,7 +219,8 @@ def processGenome(sequence, reversed):
 		if wrappedAround:
 			break
 	return
-
+######################### FUNCTION END #####################################
+	
 ## call processing function
 processGenome(sequence, False)
 ## debugging output
