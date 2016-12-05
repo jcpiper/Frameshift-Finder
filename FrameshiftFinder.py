@@ -29,8 +29,8 @@ def findSlipSeq(orf, seqs, shift):
 		if result >= 0:
 			if shift:
 				match = [x, result, result + 7, '-1 Frameshift']
-				file = open('results.txt', 'w+')
-				file.append(orf)
+				file = open('results.txt', 'a')
+				file.write(orf)
 				file.close()
 			else:
 				match = [x, result, result + 7, '+1 Frameshift']
