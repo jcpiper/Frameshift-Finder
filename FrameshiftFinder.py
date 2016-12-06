@@ -4,8 +4,9 @@
 import os
 
 ### GLIMMER CALL ####
-## import subprocess
-## subprocess.call("glimmer3 [insert filename here] L5.icm results.txt")
+import subprocess
+subprocess.call("glimmer\\glimmer3 MrMagoo.fasta glimmer\\L5.icm results.txt")
+## NOTE: glimmer start/stop codon coordinates are 1 base off (must use 1-based indexing instead of 0-based)
 #####################
 
 ###################################### FUNCTIONS TO FIND SLIPPERY SEQUENCE MATCHES IN ORFS ######################################
@@ -144,10 +145,10 @@ def processGenome(sequence, reversed):
 			######## HANDLING CIRCULAR NATURE OF GENOME HERE #########
 			#circle back thru genome if end of file is not stop codon
 			if (len(sequence) - curr < 3 and readCount < 2):
-				print('going back to start of genome')
+				# print('going back to start of genome')
 				length = 3 - (len(sequence) - curr)
-				print('taking first ' + str(length) + ' characters from start of file')
-				print('Remaining sequence: ' + sequence[curr:])
+				# print('taking first ' + str(length) + ' characters from start of file')
+				# print('Remaining sequence: ' + sequence[curr:])
 				codon = sequence[curr:]
 				# return to beginning of fasta file
 				dna.seek(0)
@@ -160,8 +161,8 @@ def processGenome(sequence, reversed):
 				readCount += 1
 				
 				codon += sequence[:length]
-				print('codon branching end and beginning: ' + codon)
-				print('initial sequence = ' + sequence[:length])
+				# print('codon branching end and beginning: ' + codon)
+				# print('initial sequence = ' + sequence[:length])
 				
 				#Flag to exit after next stop codon
 				wrappedAround = True
@@ -216,7 +217,7 @@ def processGenome(sequence, reversed):
 		# if (otherFrame):
 		orfs.write(','.join(rframe))
 		orfs.write(',')
-		print(findSlipSeq(''.join(rframe), seqs, shift))
+		# print(findSlipSeq(''.join(rframe), seqs, shift))
 		
 		# debugging output:
 		# if (len(rframe) > 1):
@@ -234,10 +235,76 @@ def processGenome(sequence, reversed):
 ## call processing function
 processGenome(sequence, False)
 ## debugging output
-print('PROCESSING REVERSE SEQUENCE')
+# print('PROCESSING REVERSE SEQUENCE')
 processGenome(sequence[::-1], True)	
 
 #Remove ',' from end of file
 orfs.seek(-1, os.SEEK_END)
 orfs.truncate()
 orfs.close()
+
+##################### INCORPORATING GLIMMER OUTPUT HERE ##############################
+#only concerned with predicted genes... can ignore the .detail file
+data = open('results.txt.predict')
+
+#using mrmagoo as test data
+fasta = open('MrMagoo.fasta')
+
+#ignore header line
+fasta.readline()
+#have to read remainder of file line by line, stripping \n characters
+seq = ''
+for line in fasta:
+	seq += line.strip()
+
+#disregard header line
+data.readline()
+
+#maintain coordinate of stop codon of previous gene
+prevEnd = 0
+
+## generate slippery sequence library
+seqs = genSeqs()
+#loop thru remaining output
+for line in data:
+	#create array of gene data
+	gene = line.split()
+	start = int(gene[1])
+	end = int(gene[2])
+	
+	if abs(start-prevEnd) < 50:
+		
+		## debugging output
+		# print('prediction: ' + str(gene))
+
+		## Have to handle genes in reverse direction
+		if end < start:
+			# print('Handling gene in negative reading frame')
+			## do so here
+			orf = seq[end-1:start]
+			# reverse string
+			orf = orf[::-1]
+			# print('anti-coding strand: ' + orf)
+			temp = ''
+			for base in orf:
+				if base == 'A':
+					temp += 'T'
+				if base == 'T':
+					temp += 'A'
+				if base == 'G':
+					temp += 'C'
+				if base == 'C':
+					temp += 'G'
+			orf = temp
+			#discard temp str
+			temp = None
+			# print('coding strand: ' + orf)
+		else:
+			# glimmer indexing is off by 1
+			orf = seq[start-1:end]
+			# print('ORF: ' + orf)
+		match = findSlipSeq(orf, seqs, None)
+		if match != "No match found":
+			print match
+	prevEnd = end
+## should only search orfs with close subsequent gene
