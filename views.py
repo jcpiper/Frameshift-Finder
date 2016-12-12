@@ -9,14 +9,15 @@ from .forms import UploadFileForm
 	
 def upload(request):
 	# handles file uploads
-	if request.method == 'post':
+	if request.method == 'POST':
 		form = UploadFileForm(request.POST, request.FILES)
+		
 		if form.is_valid():
 			process_file(request.FILES['file'])
 			return HttpResponseRedirect('fsfinder/results.html')
 		else:
 			form = UploadFileForm()
-		return render(request, 'fsfinder/index.html', {'form':form})
+			return render(request, 'fsfinder/index.html', {'form':form})
 	else:
 		form = UploadFileForm()
 		return render(request, 'fsfinder/index.html', {'form':form})
