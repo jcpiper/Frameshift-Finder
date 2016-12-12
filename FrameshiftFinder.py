@@ -5,7 +5,7 @@ import os
 
 ### GLIMMER CALL ####
 import subprocess
-subprocess.call("glimmer\\glimmer3 upload.fasta glimmer\\L5.icm results.txt")
+subprocess.call(["glimmer/glimmer3", "upload.fasta", "glimmer/L5.icm", "results.txt"])
 ## NOTE: glimmer start/stop codon coordinates are 1 base off (must use 1-based indexing instead of 0-based)
 #####################
 
@@ -47,7 +47,7 @@ def findSlipSeq(orf, seqs, shift):
 
 ###################################### START OF SCRIPT	######################################
 ## Read in fasta file
-dna = open('etude.fasta', 'r')
+dna = open('upload.fasta', 'r')
 
 ### File to be sent to glimmer ###
 orfs = open('orfs.csv', 'w+')
@@ -247,7 +247,7 @@ orfs.close()
 #only concerned with predicted genes... can ignore the .detail file
 data = open('results.txt.predict')
 
-#using mrmagoo as test data
+#open FASTA file
 fasta = open('upload.fasta')
 
 #ignore header line
