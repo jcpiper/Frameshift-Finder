@@ -14,7 +14,7 @@ def index(request):
 def upload(request):
 	# handles file uploads
 	if request.method == 'post':
-		form = UploadFileForm(request.POST, request.FILES}
+		form = UploadFileForm(request.POST, request.FILES)
 		if form.is_valid():
 			process_file(request.FILES['file'])
 			return HttpResponseRedirect('fsfinder/results.html')
