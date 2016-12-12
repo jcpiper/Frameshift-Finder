@@ -6,7 +6,7 @@
 open reading frames (ORFs) for a potential of single-frame shifts.</p>
 
 {{form.non_field_errors}}
-<form action="/fsfinder/", method="post">
+<form enctype="multipart/form-data" action="/fsfinder/" method="post">
 	{% csrf_token %}
   <!--<input type="file" name="file" accept=".fasta">-->
 	{{form.as_p}}
