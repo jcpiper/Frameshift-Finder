@@ -5,7 +5,7 @@ import os
 
 ### GLIMMER CALL ####
 import subprocess
-subprocess.call("glimmer\\glimmer3 MrMagoo.fasta glimmer\\L5.icm results.txt")
+subprocess.call("glimmer\\glimmer3 upload.fasta glimmer\\L5.icm results.txt")
 ## NOTE: glimmer start/stop codon coordinates are 1 base off (must use 1-based indexing instead of 0-based)
 #####################
 
@@ -248,7 +248,7 @@ orfs.close()
 data = open('results.txt.predict')
 
 #using mrmagoo as test data
-fasta = open('MrMagoo.fasta')
+fasta = open('upload.fasta')
 
 #ignore header line
 fasta.readline()
