@@ -5,11 +5,13 @@
 <p>Frameshift Finder 2.0 is a web app that reads genomes and identifies overlapping
 open reading frames (ORFs) for a potential of single-frame shifts.</p>
 
-<form action="/index.html", method="post">
+{{form.non_field_errors}}
+<form action="/fsfinder/", method="post">
 	{% csrf_token %}
   <!--<input type="file" name="file" accept=".fasta">-->
 	{{form.as_p}}
-	<input type="submit" value="Submit">
+	{{form.file.errors}}
+	<input type="submit" value="Submit" />
 </form>
 
 <p>Submit files in FASTA format.</p>

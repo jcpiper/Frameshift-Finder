@@ -3,10 +3,6 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from .forms import UploadFileForm
 
-# Create your views here.
-
-# Algorithm will go here
-
 # def index(request):
 	# render home page
 	# return render(request, 'fsfinder/index.html')
@@ -24,6 +20,7 @@ def upload(request):
 	else:
 		form = UploadFileForm()
 		return render(request, 'fsfinder/index.html', {'form':form})
+
 def process_file(file):
 	# writes upload to temporary file
 	with open('fsfinder/upload.fasta', 'w+') as destination:
@@ -46,6 +43,10 @@ def file_check(request):
 
 def calculate(request):
 	# Algorithm goes here
-	
+	file = open('upload.fasta', 'r')
+	if file.readLine() == '':
+		filestatus = 'No file found'
+	else:
+		filestatus = 'file upload worked'
 	# Another file to build DFA?
-	return render(request, 'fsfinder/results.html')
+	return render(request, 'fsfinder/results.html', {'filestatus':filestatus})
