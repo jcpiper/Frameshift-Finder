@@ -23,7 +23,7 @@ def upload(request):
 
 def process_file(file):
 	# writes upload to temporary file
-	with open('fsfinder/upload.fasta', 'w+') as destination:
+	with open('fsfinder/upload.fasta', 'wb+') as destination:
 		for chunk in file.chunks():
 			destination.write(chunk)
 
