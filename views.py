@@ -2,6 +2,9 @@ from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from .forms import UploadFileForm
+import os
+import subprocess
+# import os.popen*
 
 # def index(request):
 	# render home page
@@ -48,6 +51,6 @@ def calculate(request):
 	if file.readline() == '':
 		filestatus = 'No file found'
 	else:
-		subprocess.call(["python", "FrameshiftFinder.py"])
+		filestatus = subprocess.Popen(["python", "fsfinder/FrameshiftFinder.py"], stdout=subprocess.PIPE).communicate() # a little python black magic to access output of our algorithm
 	# Another file to build DFA?
 	return render(request, 'fsfinder/results.html', {'filestatus':filestatus})
