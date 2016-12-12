@@ -48,6 +48,6 @@ def calculate(request):
 	if file.readline() == '':
 		filestatus = 'No file found'
 	else:
-		filestatus = 'file upload worked'
+		subprocess.call(["python", "FrameshiftFinder.py"])
 	# Another file to build DFA?
 	return render(request, 'fsfinder/results.html', {'filestatus':filestatus})
