@@ -14,7 +14,7 @@ def upload(request):
 		
 		if form.is_valid():
 			process_file(request.FILES['file'])
-			return HttpResponseRedirect('fsfinder/results.html')
+			return HttpResponseRedirect('results.html')
 		else:
 			form = UploadFileForm()
 			return render(request, 'fsfinder/index.html', {'form':form})
@@ -44,8 +44,8 @@ def file_check(request):
 
 def calculate(request):
 	# Algorithm goes here
-	file = open('upload.fasta', 'r')
-	if file.readLine() == '':
+	file = open('fsfinder/upload.fasta', 'r')
+	if file.readline() == '':
 		filestatus = 'No file found'
 	else:
 		filestatus = 'file upload worked'
