@@ -7,9 +7,9 @@ from .forms import UploadFileForm
 
 # Algorithm will go here
 
-def index(request):
+# def index(request):
 	# render home page
-	return render(request, 'fsfinder/index.html')
+	# return render(request, 'fsfinder/index.html')
 	
 def upload(request):
 	# handles file uploads
@@ -21,10 +21,12 @@ def upload(request):
 		else:
 			form = UploadFileForm()
 		return render(request, 'fsfinder/index.html', {'form':form})
-		
+	else:
+		form = UploadFileForm()
+		return render(request, 'fsfinder/index.html', {'form':form})
 def process_file(file):
 	# writes upload to temporary file
-	with open('fsfinder/.fasta', 'w+') as destination:
+	with open('fsfinder/upload.fasta', 'w+') as destination:
 		for chunk in file.chunks():
 			destination.write(chunk)
 
