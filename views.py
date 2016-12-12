@@ -51,6 +51,6 @@ def calculate(request):
 	if file.readline() == '':
 		filestatus = 'No file found'
 	else:
-		filestatus = subprocess.Popen(["python", "fsfinder/FrameshiftFinder.py"], stdout=subprocess.PIPE).communicate() # a little python black magic to access output of our algorithm
+		filestatus = subprocess.Popen(["python", "fsfinder/FrameshiftFinder.py"], stdout=subprocess.PIPE).communicate()[0] # a little python black magic to access output of our algorithm
 	# Another file to build DFA?
 	return render(request, 'fsfinder/results.html', {'filestatus':filestatus})
