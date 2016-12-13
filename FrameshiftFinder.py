@@ -40,7 +40,7 @@ def findSlipSeq(orf, seqs, shift):
 			return match
 	return 'No match found'
 	
-def findFrameshiftDirection(seq, start, negFrame):
+def findFrameshiftDirection(seq, start, end, negFrame):
 	# Determine shift direction of frame shift
 	### LOGIC ###
 	## Because -1 frameshifts are FAR more common, look for the first stop codon in the frame produced by a -1 shift ##
@@ -58,15 +58,15 @@ def findFrameshiftDirection(seq, start, negFrame):
 		while minusFrameCoord < len(minusOneFrame):
 			currCodon = minusOneFrame[minusFrameCoord: minusFrameCoord+3]
 			if currCodon == 'TGA' or currCodon == 'TAA' or currCodon == 'TAG':
-				return '-1 Frameshift'
+				if minusFrameCoord > end:
+					return '-1 Frameshift'
 			minusFrameCoord += 3
 		
 		while plusFrameCoord < len(plusOneFrame):
 			currCodon = plusOneFrame[plusFrameCoord: plusFrameCoord+3]
 			if currCodon == 'TGA' or currCodon == 'TAA' or currCodon == 'TAG':
-				# plusFrameStop = plusFrameCoord
-				print('Stop codon found at ' + str(plusFrameStop))
-				break
+				if plusFrameCoord > end:
+					break
 			plusFrameCoord += 3
 			
 		if plusFrameCoord < len(plusOneFrame):	
@@ -102,7 +102,7 @@ def findFrameshiftDirection(seq, start, negFrame):
 		stopCoord = 0
 		for base in readingFrame:
 			stopCoord += 1
-			if len(codon < 3):
+			if len(codon) < 3:
 				codon.append(base)
 			else:
 				codon.pop(0)
@@ -112,11 +112,11 @@ def findFrameshiftDirection(seq, start, negFrame):
 			if curr == 'TGA' or curr == 'TAA'  or curr == 'TAG':
 				stopCoord = start - stopCoord
 				if stopCoord % 3 == 2:
-					return '-1 FrameShift'
+					return '-1 Frameshift'
 				elif stopCoord % 3 == 1:
 					plusOneStop = True
 		if plusOneStop:
-			return '+1 FrameShift'
+			return '+1 Frameshift'
 		# no stop codon found	
 		return None
 
@@ -360,10 +360,6 @@ for line in data:
 	# print('Examining orf at ' + str(start) + '-' + str(end) + '<br>')
 	
 	if abs(start-prevEnd) < 50:
-		
-		## debugging output
-		# print('prediction: ' + str(gene))
-
 		#Flag indicating direction of reading frame (false = positive frame)
 		negFrame = False
 				
@@ -401,7 +397,7 @@ for line in data:
 		match = findSlipSeq(orf, seqs, None)
 		
 		if match != "No match found":
-			shiftType = findFrameshiftDirection(seq, start-1, negFrame)
+			shiftType = findFrameshiftDirection(seq, start-1, end, negFrame)
 			if shiftType:
 				match.append(shiftType)
 				print match

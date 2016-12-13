@@ -2,7 +2,20 @@
 
 <h1>Results</h1>
 
-<p>Detected frameshifts are shown below</p>
+<p>Detected frameshift candidates are shown below</p>
 <hr />
 
 {{filestatus}}
+
+<h3>(Slightly) more organized output</h3>
+<div>
+	{% for candidate in candidates %}
+	<p>
+		{{candidate}}
+	</p>
+	{% endfor %}
+</div>
+
+<div>
+	<a href="{% url 'fsfinder:index' %}">Home</a>
+</div>
