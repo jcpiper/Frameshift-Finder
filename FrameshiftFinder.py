@@ -32,17 +32,94 @@ def findSlipSeq(orf, seqs, shift):
 	for x in seqs:
 		result = orf.find(x)
 		if result >= 0:
-			if shift:
-				match = [x, result, result + 7, '-1 Frameshift']
-				file = open('results.txt', 'a')
-				file.write(orf)
-				file.close()
-			else:
-				match = [x, result, result + 7, '+1 Frameshift']
+			match = [x, result, result + 7]
+			file = open('results.txt', 'a')
+			file.write(orf)
+			file.close()
 			
 			return match
 	return 'No match found'
 	
+def findFrameshiftDirection(seq, start, negFrame):
+	# Determine shift direction of frame shift
+	### LOGIC ###
+	## Because -1 frameshifts are FAR more common, look for the first stop codon in the frame produced by a -1 shift ##
+	## Along the way, store the first codon in the +1 frame, if any are found ##
+	## If stop codon is found in -1 frame, it is most likely a -1 frameshift ##
+	## If not, it's probably a +1 frameshift ##
+	## This function is one that could be improved as more research on the topic is performed ##
+	if not negFrame:
+		minusOneFrame = seq[start + 2:]
+		plusOneFrame = seq[start+1:]
+		
+		minusFrameCoord = start + 2
+		plusFrameCoord = start + 1
+	# Stop codons: TGA TAA TAG
+		while minusFrameCoord < len(minusOneFrame):
+			currCodon = minusOneFrame[minusFrameCoord: minusFrameCoord+3]
+			if currCodon == 'TGA' or currCodon == 'TAA' or currCodon == 'TAG':
+				return '-1 Frameshift'
+			minusFrameCoord += 3
+		
+		while plusFrameCoord < len(plusOneFrame):
+			currCodon = plusOneFrame[plusFrameCoord: plusFrameCoord+3]
+			if currCodon == 'TGA' or currCodon == 'TAA' or currCodon == 'TAG':
+				# plusFrameStop = plusFrameCoord
+				print('Stop codon found at ' + str(plusFrameStop))
+				break
+			plusFrameCoord += 3
+			
+		if plusFrameCoord < len(plusOneFrame):	
+			return '+1 Frameshift'
+		return None
+	else:
+		plusOneStop = False
+		# reference frame
+		readingFrame = seq[start:]
+		# reverse string
+		readingFrame = seq[::-1]
+		# build complement strand
+		temp = ''
+		for base in readingFrame:
+			if base == 'A':
+				temp += 'T'
+			if base == 'T':
+				temp += 'A'
+			if base == 'G':
+				temp += 'C'
+			if base == 'C':
+				temp += 'G'
+		readingFrame = temp
+		temp = None
+			
+		minusOneFrame = readingFrame[2:]
+		plusOneFrame = readingFrame[1:]
+		
+		minusFrameCoord = 2
+		plusFrameCoord = 1
+		
+		codon = []
+		stopCoord = 0
+		for base in readingFrame:
+			stopCoord += 1
+			if len(codon < 3):
+				codon.append(base)
+			else:
+				codon.pop(0)
+				codon.append(base)
+			
+			curr = ''.join(codon)
+			if curr == 'TGA' or curr == 'TAA'  or curr == 'TAG':
+				stopCoord = start - stopCoord
+				if stopCoord % 3 == 2:
+					return '-1 FrameShift'
+				elif stopCoord % 3 == 1:
+					plusOneStop = True
+		if plusOneStop:
+			return '+1 FrameShift'
+		# no stop codon found	
+		return None
+
 ###################################### ###################################### ######################################	
 
 ###################################### START OF SCRIPT	######################################
@@ -272,16 +349,30 @@ for line in data:
 	start = int(gene[1])
 	end = int(gene[2])
 	
+	reverse = False
+	
+	if end < start:
+		temp = start
+		start = end
+		end = temp
+		reverse = True
+	
+	# print('Examining orf at ' + str(start) + '-' + str(end) + '<br>')
+	
 	if abs(start-prevEnd) < 50:
 		
 		## debugging output
 		# print('prediction: ' + str(gene))
 
+		#Flag indicating direction of reading frame (false = positive frame)
+		negFrame = False
+				
 		## Have to handle genes in reverse direction
-		if end < start:
+		if reverse:
+			negFrame = True
 			# print('Handling gene in negative reading frame')
 			## do so here
-			orf = seq[end-1:start]
+			orf = seq[start-1:end]
 			# reverse string
 			orf = orf[::-1]
 			# print('anti-coding strand: ' + orf)
@@ -303,8 +394,16 @@ for line in data:
 			# glimmer indexing is off by 1
 			orf = seq[start-1:end]
 			# print('ORF: ' + orf)
+			
+		## determine whether it is a -1 or +1 shift...
+		## Find next out of frame stop codon
+		
 		match = findSlipSeq(orf, seqs, None)
+		
 		if match != "No match found":
-			print match
+			shiftType = findFrameshiftDirection(seq, start-1, negFrame)
+			if shiftType:
+				match.append(shiftType)
+				print match
 	prevEnd = end
 ## should only search orfs with close subsequent gene
